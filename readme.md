@@ -1,13 +1,7 @@
-![ping-email Cover](https://res.cloudinary.com/pingback/image/upload/v1709844172/assets/general/ping-email-cover_qaivm8.png)
+![ping-email Cover](https://res.cloudinary.com/pingback/image/upload/v1709848522/assets/general/cover_e4tjvr.png)
 
 <div align="center"><strong>ping-email</strong></div>
 <div align="center">Node.js SMTP Email Verification Library</div>
-<br />
-<div align="center">
-<a href="https://pingback.com/">Pingback</a>
-</div>
-
-**An open-source Node.js library for SMTP Email Verification. Powered by [Pingback](https://pingback.com/).**
 
 ## Install
 
