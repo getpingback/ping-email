@@ -1,0 +1,50 @@
+{
+  "name": "ping-email",
+  "version": "0.0.1",
+  "description": "Node.js SMTP Email Verification Library",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "build": "tsup src/index.ts --format esm,cjs --dts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/getpingback/ping-email.git"
+  },
+  "keywords": [
+    "smtp",
+    "email",
+    "verification"
+  ],
+  "author": "Pingback Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/getpingback/ping-email/issues"
+  },
+  "homepage": "https://github.com/getpingback/ping-email#readme",
+  "devDependencies": {
+    "@types/disposable-email": "^0.2.2",
+    "@types/node": "^20.11.24",
+    "disposable-email": "^0.2.3",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  }
+}
