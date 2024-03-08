@@ -3,12 +3,12 @@ import { promisify } from "util";
 import { createConnection } from "net";
 import disposable from "disposable-email";
 
-import { VerifyDomainResponse } from "../interfaces/emails.interface";
 import {
   PingEmailOptions,
-  CallbackDataMessages,
   PingCallbackParam,
+  CallbackDataMessages,
 } from "../interfaces/ping-email.interface";
+import { VerifyDomainResponse } from "../interfaces/emails.interface";
 
 const resolveMxPromise = promisify(resolveMx);
 
@@ -32,6 +32,7 @@ class Emails {
 
     try {
       const addresses = await resolveMxPromise(domain);
+
       if (addresses && addresses.length > 0) {
         let priority = 10000;
         let lowestPriorityIndex = 0;

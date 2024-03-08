@@ -21,6 +21,8 @@
     }
   },
   "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
     "prepublishOnly": "npm run build",
     "build": "tsup src/index.ts --format esm,cjs --dts"
   },
@@ -33,7 +35,10 @@
     "email",
     "verification"
   ],
-  "author": "Pingback Team",
+  "author": "Pedro Ladeira <me@pedroladeira.com> (https://github.com/pepeladeira)",
+  "contributors": [
+    "Daniel Bastos <eu@danielbastos.me> (https://github.com/danielsalles)"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/getpingback/ping-email/issues"
@@ -41,8 +46,11 @@
   "homepage": "https://github.com/getpingback/ping-email#readme",
   "devDependencies": {
     "@types/disposable-email": "^0.2.2",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.11.24",
     "disposable-email": "^0.2.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3"

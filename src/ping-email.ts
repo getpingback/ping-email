@@ -1,6 +1,6 @@
 "use strict";
 
-import { Emails } from "./lib/emails";
+import { Emails } from "./emails/emails";
 import {
   PingEmailParam,
   PingEmailOptions,
