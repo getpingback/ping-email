@@ -1,6 +1,6 @@
 {
   "name": "ping-email",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Node.js SMTP Email Verification Library",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
