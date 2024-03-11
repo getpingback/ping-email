@@ -6,20 +6,22 @@ import {
   PingResponse,
   PingEmailOptions,
   PingResponseMessages,
+  PingEmailConstructorOptions,
 } from "./interfaces/ping-email.interface";
 
 class PingEmail {
   private readonly log: Log;
   private readonly emails: Emails;
+  private readonly options: PingEmailOptions;
 
-  constructor(
-    readonly options: PingEmailOptions = {
-      port: 25,
-      fqdn: "mail.example.org",
-      sender: "name@example.org",
-      debug: false,
-    }
-  ) {
+  constructor(options?: PingEmailConstructorOptions) {
+    this.options = {
+      port: options?.port || 25,
+      debug: options?.debug || false,
+      sender: options?.sender || "name@example.org",
+      fqdn: options?.fqdn || "mail.example.org",
+    };
+
     this.log = new Log(this.options.debug);
     this.emails = new Emails(this.options);
   }
@@ -77,8 +79,8 @@ class PingEmail {
     this.log.info(`Verifying SMTP of email: ${email}`);
     if (isDomainValid && foundMx && smtp) {
       const { valid, success, message } = await this.emails.verifySMTP(
-        smtp,
-        email
+        email,
+        smtp
       );
 
       this.log.info(`SMTP verification of email: ${email} - ${message}`);

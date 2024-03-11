@@ -11,11 +11,18 @@ export enum PingResponseMessages {
   SMTP_CONNECTION_ERROR = "SMTP connection error",
 }
 
+export interface PingEmailConstructorOptions {
+  port?: number;
+  fqdn?: string;
+  sender?: string;
+  debug?: boolean;
+}
+
 export interface PingEmailOptions {
   port: number;
   fqdn: string;
   sender: string;
-  debug?: boolean;
+  debug: boolean;
 }
 
 export interface PingResponse {
