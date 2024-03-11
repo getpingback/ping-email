@@ -10,5 +10,6 @@ export interface VerifyDomainResponse {
 export interface VerifySMTPResponse {
   valid: boolean;
   success: boolean;
+  tryAgain: boolean;
   message: PingResponseMessages;
 }

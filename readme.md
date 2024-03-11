@@ -18,7 +18,8 @@ import { PingEmail } from "ping-email";
 const pingEmail = new PingEmail({
   port: 25, // Default SMTP port
   fqdn: "mail.example.org", // Fully Qualified Domain Name of your SMTP server
-  sender: "name@example.org", // Email address to use as the sender in SMTP checks
+  sender: "name@example.org", // Email address to use as the sender in SMTP checks,
+  timeout: 10000, // Time in milliseconds to wait for a response from the SMTP server
 });
 ```
 
@@ -45,6 +46,7 @@ The ping method returns an object with the following properties:
 - `email`: The email address being verified.
 - `valid`: A boolean indicating the overall validity of the email based on syntax, domain, and SMTP checks.
 - `success`: A boolean indicating if the verification process executed without encountering system-level errors (e.g., network issues).
+- `tryAgain`: A boolean indicating if the verification process should be retried. This is useful when the verification process fails due to temporary issues, such as network connectivity problems.
 - `message`: A string providing detailed feedback about the verification outcome. This message can be one of the following, as defined in `PingResponseMessages`:
   - `"Valid email"`: The email address is valid.
   - `"Invalid email"`: The email address is invalid.
@@ -53,9 +55,11 @@ The ping method returns an object with the following properties:
   - `"Email is required"`: No email address was provided for verification.
   - `"No MX records found"`: The domain does not have MX records, indicating it cannot receive emails.
   - `"Invalid email syntax"`: The email address provided does not meet the syntactical standards for email addresses.
+  - `"SMTP connection error"`: There was an error connecting to the SMTP server for verification.
   - `"Disposable email is not allowed"`: The email address belongs to a disposable email provider.
   - `"Domain verification failed"`: The domain verification process failed.
-  - `"SMTP connection error"`: There was an error connecting to the SMTP server for verification.
+  - `"Unable to verify email"`: The email verification process failed for an unknown reason.
+  - `"Connection timeout"`: The connection to the SMTP server timed out.
 
 These messages provide clear insights into the verification process, helping you understand the specific reason for an email's validation outcome.
 
@@ -70,6 +74,7 @@ You can customize **PingEmail** by providing different options when you instanti
 - `port`: The port number to connect to the SMTP server (default: 25).
 - `fqdn`: The Fully Qualified Domain Name of your SMTP server.
 - `sender`: The email address used as the sender in SMTP checks.
+- `timeout`: The time in milliseconds to wait for a response from the SMTP server (default: 10000).
 - `debug`: A boolean indicating whether to enable debug mode, which logs detailed information about the verification process (default: false).
 
 This allows you to tailor the library to your specific requirements, ensuring compatibility with your email verification workflow.

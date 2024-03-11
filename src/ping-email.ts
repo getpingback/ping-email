@@ -18,6 +18,7 @@ class PingEmail {
     this.options = {
       port: options?.port || 25,
       debug: options?.debug || false,
+      timeout: options?.timeout || 10000,
       sender: options?.sender || "name@example.org",
       fqdn: options?.fqdn || "mail.example.org",
     };
@@ -34,6 +35,7 @@ class PingEmail {
         email,
         valid: false,
         success: true,
+        tryAgain: false,
         message: PingResponseMessages.EMAIL_REQUIRED,
       };
     }
@@ -45,6 +47,7 @@ class PingEmail {
         email,
         valid: false,
         success: true,
+        tryAgain: false,
         message: PingResponseMessages.INVALID_SYNTAX,
       };
     }
@@ -56,6 +59,7 @@ class PingEmail {
         email,
         valid: false,
         success: true,
+        tryAgain: false,
         message: PingResponseMessages.DISPOSABLE_EMAIL,
       };
     }
@@ -72,16 +76,15 @@ class PingEmail {
         email,
         valid: false,
         success: true,
+        tryAgain: false,
         message: domainMessage,
       };
     }
 
     this.log.info(`Verifying SMTP of email: ${email}`);
     if (isDomainValid && foundMx && smtp) {
-      const { valid, success, message } = await this.emails.verifySMTP(
-        email,
-        smtp
-      );
+      const { valid, success, message, tryAgain } =
+        await this.emails.verifySMTP(email, smtp);
 
       this.log.info(`SMTP verification of email: ${email} - ${message}`);
 
@@ -90,6 +93,7 @@ class PingEmail {
         valid,
         success,
         message,
+        tryAgain,
       };
     }
 
@@ -97,7 +101,8 @@ class PingEmail {
       email,
       valid: false,
       success: false,
-      message: PingResponseMessages.SMTP_CONNECTION_ERROR,
+      tryAgain: false,
+      message: PingResponseMessages.UNABLE_TO_VERIFY,
     };
   }
 }

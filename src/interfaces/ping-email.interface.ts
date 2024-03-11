@@ -6,9 +6,11 @@ export enum PingResponseMessages {
   EMAIL_REQUIRED = "Email is required",
   NO_MX_RECORDS = "No MX records found",
   INVALID_SYNTAX = "Invalid email syntax",
+  SMTP_CONNECTION_ERROR = "SMTP connection error",
   DISPOSABLE_EMAIL = "Disposable email is not allowed",
   DOMAIN_VERIFICATION_FAILED = "Domain verification failed",
-  SMTP_CONNECTION_ERROR = "SMTP connection error",
+  UNABLE_TO_VERIFY = "Unable to verify email",
+  CONNECTION_TIMEOUT = "Connection timeout",
 }
 
 export interface PingEmailConstructorOptions {
@@ -16,6 +18,7 @@ export interface PingEmailConstructorOptions {
   fqdn?: string;
   sender?: string;
   debug?: boolean;
+  timeout?: number;
 }
 
 export interface PingEmailOptions {
@@ -23,11 +26,13 @@ export interface PingEmailOptions {
   fqdn: string;
   sender: string;
   debug: boolean;
+  timeout: number;
 }
 
 export interface PingResponse {
   email: string;
   valid: boolean;
   success: boolean;
+  tryAgain: boolean;
   message: PingResponseMessages;
 }

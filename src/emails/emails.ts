@@ -81,10 +81,21 @@ class Emails {
       let response = "";
       let ended = false;
       let success = false;
-      let tryagain = false;
+      let tryAgain = false;
       let completed = false;
 
       const connection = createConnection(this.options.port, smtp);
+
+      connection.setTimeout(this.options.timeout, () => {
+        resolve({
+          tryAgain,
+          valid: false,
+          success: false,
+          message: PingResponseMessages.CONNECTION_TIMEOUT,
+        });
+
+        connection.destroy();
+      });
 
       connection.on("data", (data) => {
         response += data.toString();
@@ -111,7 +122,7 @@ class Emails {
                   response.indexOf("450") > -1 ||
                   response.indexOf("451") > -1
                 )
-                  tryagain = true;
+                  tryAgain = true;
                 connection.end();
               }
               break;
@@ -175,6 +186,7 @@ class Emails {
         this.log.error(`Error connecting to SMTP server: ${err}`);
 
         resolve({
+          tryAgain,
           valid: false,
           success: false,
           message: PingResponseMessages.SMTP_CONNECTION_ERROR,
@@ -186,12 +198,14 @@ class Emails {
 
         if (success) {
           resolve({
+            tryAgain,
             valid: true,
             success: true,
             message: PingResponseMessages.VALID,
           });
         } else {
           resolve({
+            tryAgain,
             valid: false,
             success: true,
             message: PingResponseMessages.INVALID,
