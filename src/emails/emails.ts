@@ -193,7 +193,7 @@ class Emails {
         } else {
           resolve({
             valid: false,
-            success: false,
+            success: true,
             message: PingResponseMessages.INVALID,
           });
         }

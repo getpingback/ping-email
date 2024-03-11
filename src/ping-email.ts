@@ -31,7 +31,7 @@ class PingEmail {
       return {
         email,
         valid: false,
-        success: false,
+        success: true,
         message: PingResponseMessages.EMAIL_REQUIRED,
       };
     }
@@ -42,7 +42,7 @@ class PingEmail {
       return {
         email,
         valid: false,
-        success: false,
+        success: true,
         message: PingResponseMessages.INVALID_SYNTAX,
       };
     }
@@ -53,7 +53,7 @@ class PingEmail {
       return {
         email,
         valid: false,
-        success: false,
+        success: true,
         message: PingResponseMessages.DISPOSABLE_EMAIL,
       };
     }
@@ -69,7 +69,7 @@ class PingEmail {
       return {
         email,
         valid: false,
-        success: false,
+        success: true,
         message: domainMessage,
       };
     }
@@ -81,25 +81,14 @@ class PingEmail {
         email
       );
 
-      if (success && valid) {
-        this.log.info(`Email is valid: ${email}`);
+      this.log.info(`SMTP verification of email: ${email} - ${message}`);
 
-        return {
-          email,
-          valid,
-          success,
-          message,
-        };
-      } else {
-        this.log.error(`Email is invalid: ${email}`);
-
-        return {
-          email,
-          valid,
-          success,
-          message,
-        };
-      }
+      return {
+        email,
+        valid,
+        success,
+        message,
+      };
     }
 
     return {
