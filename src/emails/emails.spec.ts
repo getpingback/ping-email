@@ -1,7 +1,7 @@
 import { Emails } from "./emails";
 import {
   PingEmailOptions,
-  CallbackDataMessages,
+  PingResponseMessages,
 } from "../interfaces/ping-email.interface";
 
 const mockOptions = {
@@ -50,7 +50,7 @@ describe("Emails", () => {
         smtp: "gmail-smtp-in.l.google.com",
         valid: true,
         foundMx: true,
-        message: CallbackDataMessages.VALID_DOMAIN,
+        message: PingResponseMessages.VALID_DOMAIN,
       };
 
       expect(result).toEqual(expected);
@@ -62,7 +62,7 @@ describe("Emails", () => {
       const expected = {
         valid: false,
         foundMx: false,
-        message: CallbackDataMessages.DOMAIN_VERIFICATION_FAILED,
+        message: PingResponseMessages.DOMAIN_VERIFICATION_FAILED,
       };
 
       expect(result).toEqual(expected);

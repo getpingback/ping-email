@@ -26,26 +26,26 @@ const pingEmail = new PingEmail({
 
 ### Verifying an Email Address
 
-To verify an email address using PingEmail, call the ping method with the target email address and a callback function. The callback function is invoked with a result object containing details about the verification process:
+To verify an email address using PingEmail, call the ping method with the target email address:
 
 ```js
-pingEmail.ping("test@example.com", (result) => {
-  if (result.success) {
-    console.log("Email is valid:", result.email);
-  } else {
-    console.error("Verification failed:", result.message);
-  }
-});
+const { email, valid, message } = await pingEmail.ping("test@example.com");
+
+if (valid) {
+  console.log("Email is valid:", email);
+} else {
+  console.error("Verification failed:", message);
+}
 ```
 
-### Callback Result
+### Ping Response
 
-The callback function provides an object with detailed information about the verification process. Here are the properties included in this object:
+The ping method returns an object with the following properties:
 
 - `email`: The email address being verified.
 - `valid`: A boolean indicating the overall validity of the email based on syntax, domain, and SMTP checks.
 - `success`: A boolean indicating if the verification process executed without encountering system-level errors (e.g., network issues).
-- `message`: A string providing detailed feedback about the verification outcome. This message can be one of the following, as defined in `CallbackDataMessages`:
+- `message`: A string providing detailed feedback about the verification outcome. This message can be one of the following, as defined in `PingResponseMessages`:
   - `"Valid email"`: The email address is valid.
   - `"Invalid email"`: The email address is invalid.
   - `"Valid domain"`: The domain of the email address is valid.
@@ -61,7 +61,7 @@ These messages provide clear insights into the verification process, helping you
 
 ### Error Handling
 
-When integrating PingEmail into your applications, pay special attention to the success and message properties in the callback result. They are key to identifying and handling different scenarios, such as invalid email syntax, domain issues, or SMTP server connectivity problems. Logging these details can be helpful for debugging purposes or improving user feedback in your application interface.
+When integrating PingEmail into your applications, pay special attention to the success and message properties in the ping method response. They are key to identifying and handling different scenarios, such as invalid email syntax, domain issues, or SMTP server connectivity problems. Logging these details can be helpful for debugging purposes or improving user feedback in your application interface.
 
 ### Options
 
@@ -70,6 +70,7 @@ You can customize **PingEmail** by providing different options when you instanti
 - `port`: The port number to connect to the SMTP server (default: 25).
 - `fqdn`: The Fully Qualified Domain Name of your SMTP server.
 - `sender`: The email address used as the sender in SMTP checks.
+- `debug`: A boolean indicating whether to enable debug mode, which logs detailed information about the verification process (default: false).
 
 This allows you to tailor the library to your specific requirements, ensuring compatibility with your email verification workflow.
 
@@ -86,13 +87,9 @@ const pingEmail = new PingEmail({
   sender: "verify@example.org",
 });
 
-pingEmail.ping("user@example.com", (result) => {
-  if (result.valid) {
-    console.log(`Email ${result.email} is valid.`);
-  } else {
-    console.log(`Email ${result.email} is invalid: ${result.message}`);
-  }
-});
+const { email, valid, success, message } = await pingEmail.ping(
+  "user@example.com"
+);
 ```
 
 ## Understanding Email Verification

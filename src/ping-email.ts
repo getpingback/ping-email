@@ -1,14 +1,15 @@
 "use strict";
 
+import { Log } from "./log/log";
 import { Emails } from "./emails/emails";
 import {
-  PingEmailParam,
+  PingResponse,
   PingEmailOptions,
-  PingCallbackParam,
-  CallbackDataMessages,
+  PingResponseMessages,
 } from "./interfaces/ping-email.interface";
 
 class PingEmail {
+  private readonly log: Log;
   private readonly emails: Emails;
 
   constructor(
@@ -16,44 +17,48 @@ class PingEmail {
       port: 25,
       fqdn: "mail.example.org",
       sender: "name@example.org",
+      debug: false,
     }
   ) {
+    this.log = new Log(this.options.debug);
     this.emails = new Emails(this.options);
   }
 
-  async ping(
-    email: PingEmailParam,
-    callback: PingCallbackParam
-  ): Promise<void> {
+  async ping(email: string): Promise<PingResponse> {
+    this.log.info(`Pinging email: ${email}`);
+
     if (!email) {
-      return callback({
+      return {
         email,
         valid: false,
         success: false,
-        message: CallbackDataMessages.EMAIL_REQUIRED,
-      });
+        message: PingResponseMessages.EMAIL_REQUIRED,
+      };
     }
 
+    this.log.info(`Verifying syntax of email: ${email}`);
     const isSyntaxValid = this.emails.verifySyntax(email);
     if (!isSyntaxValid) {
-      return callback({
+      return {
         email,
         valid: false,
         success: false,
-        message: CallbackDataMessages.INVALID_SYNTAX,
-      });
+        message: PingResponseMessages.INVALID_SYNTAX,
+      };
     }
 
+    this.log.info(`Verifying disposable domain of email: ${email}`);
     const isDisposable = this.emails.verifyDisposableDomain(email);
     if (isDisposable) {
-      return callback({
+      return {
         email,
         valid: false,
         success: false,
-        message: CallbackDataMessages.DISPOSABLE_EMAIL,
-      });
+        message: PingResponseMessages.DISPOSABLE_EMAIL,
+      };
     }
 
+    this.log.info(`Verifying domain of email: ${email}`);
     const {
       smtp,
       foundMx,
@@ -61,17 +66,48 @@ class PingEmail {
       message: domainMessage,
     } = await this.emails.verifyDomain(email);
     if (!isDomainValid) {
-      return callback({
+      return {
         email,
         valid: false,
         success: false,
         message: domainMessage,
-      });
+      };
     }
 
+    this.log.info(`Verifying SMTP of email: ${email}`);
     if (isDomainValid && foundMx && smtp) {
-      await this.emails.verifySMTP(email, smtp, callback);
+      const { valid, success, message } = await this.emails.verifySMTP(
+        smtp,
+        email
+      );
+
+      if (success && valid) {
+        this.log.info(`Email is valid: ${email}`);
+
+        return {
+          email,
+          valid,
+          success,
+          message,
+        };
+      } else {
+        this.log.error(`Email is invalid: ${email}`);
+
+        return {
+          email,
+          valid,
+          success,
+          message,
+        };
+      }
     }
+
+    return {
+      email,
+      valid: false,
+      success: false,
+      message: PingResponseMessages.SMTP_CONNECTION_ERROR,
+    };
   }
 }
 

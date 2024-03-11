@@ -5,16 +5,22 @@ import disposable from "disposable-email";
 
 import {
   PingEmailOptions,
-  PingCallbackParam,
-  CallbackDataMessages,
+  PingResponseMessages,
 } from "../interfaces/ping-email.interface";
-import { VerifyDomainResponse } from "../interfaces/emails.interface";
+import {
+  VerifyDomainResponse,
+  VerifySMTPResponse,
+} from "../interfaces/emails.interface";
+import { Log } from "../log/log";
 
 const resolveMxPromise = promisify(resolveMx);
 
 class Emails {
+  private readonly log: Log;
+
   constructor(readonly options: PingEmailOptions) {
     this.options = options;
+    this.log = new Log(this.options.debug);
   }
 
   verifySyntax(email: string): boolean {
@@ -50,149 +56,148 @@ class Emails {
           smtp,
           valid: true,
           foundMx: true,
-          message: CallbackDataMessages.VALID_DOMAIN,
+          message: PingResponseMessages.VALID_DOMAIN,
         };
       } else {
         return {
           valid: false,
           foundMx: false,
-          message: CallbackDataMessages.NO_MX_RECORDS,
+          message: PingResponseMessages.NO_MX_RECORDS,
         };
       }
     } catch (err) {
       return {
         valid: false,
         foundMx: false,
-        message: CallbackDataMessages.DOMAIN_VERIFICATION_FAILED,
+        message: PingResponseMessages.DOMAIN_VERIFICATION_FAILED,
       };
     }
   }
 
-  async verifySMTP(
-    email: string,
-    smtp: string,
-    callback: PingCallbackParam
-  ): Promise<void> {
-    let stage = 0;
-    let banner = "";
-    let response = "";
-    let ended = false;
-    let success = false;
-    let tryagain = false;
-    let completed = false;
+  async verifySMTP(email: string, smtp: string): Promise<VerifySMTPResponse> {
+    return new Promise<VerifySMTPResponse>((resolve) => {
+      let stage = 0;
+      let banner = "";
+      let response = "";
+      let ended = false;
+      let success = false;
+      let tryagain = false;
+      let completed = false;
 
-    const connection = createConnection(this.options.port, smtp);
+      const connection = createConnection(this.options.port, smtp);
 
-    connection.on("data", (data) => {
-      response += data.toString();
-      completed = response.slice(-1) === "\n";
+      connection.on("data", (data) => {
+        response += data.toString();
+        completed = response.slice(-1) === "\n";
 
-      if (completed) {
-        console.log(`[ping-email]: 📨 SMTP Response: ${response}`);
+        if (completed) {
+          this.log.info(`SMTP Response: ${response}`);
 
-        switch (stage) {
-          case 0:
-            if (response.indexOf("220") > -1 && !ended) {
-              banner = response;
-              const cmd = `EHLO ${this.options.fqdn}\r\n`;
-              console.log(`[ping-email]: 📨 SMTP Command: ${cmd}`);
-              connection.write(cmd, () => {
-                stage++;
-                response = "";
-              });
-            } else {
+          switch (stage) {
+            case 0:
+              if (response.indexOf("220") > -1 && !ended) {
+                banner = response;
+                const cmd = `EHLO ${this.options.fqdn}\r\n`;
+
+                this.log.info(`SMTP Command: ${cmd}`);
+
+                connection.write(cmd, () => {
+                  stage++;
+                  response = "";
+                });
+              } else {
+                if (
+                  response.indexOf("421") > -1 ||
+                  response.indexOf("450") > -1 ||
+                  response.indexOf("451") > -1
+                )
+                  tryagain = true;
+                connection.end();
+              }
+              break;
+            case 1:
+              if (response.indexOf("250") > -1 && !ended) {
+                const cmd = `MAIL FROM:<${this.options.sender}>\r\n`;
+                this.log.info(`SMTP Command: ${cmd}`);
+
+                connection.write(cmd, () => {
+                  stage++;
+                  response = "";
+                });
+              } else {
+                connection.end();
+              }
+              break;
+            case 2:
+              if (response.indexOf("250") > -1 && !ended) {
+                const cmd = `RCPT TO:<${email}>\r\n`;
+
+                this.log.info(`SMTP Command: ${cmd}`);
+
+                connection.write(cmd, () => {
+                  stage++;
+                  response = "";
+                });
+              } else {
+                connection.end();
+              }
+              break;
+            case 3:
               if (
-                response.indexOf("421") > -1 ||
-                response.indexOf("450") > -1 ||
-                response.indexOf("451") > -1
-              )
-                tryagain = true;
-              connection.end();
-            }
-            break;
-          case 1:
-            if (response.indexOf("250") > -1 && !ended) {
-              const cmd = `MAIL FROM:<${this.options.sender}>\r\n`;
-              console.log(`[ping-email]: 📨 SMTP Command: ${cmd}`);
+                response.indexOf("250") > -1 ||
+                ("405" && response.indexOf("405") > -1)
+              ) {
+                success = true;
+              }
+              stage++;
+              response = "";
 
-              connection.write(cmd, () => {
-                stage++;
-                response = "";
-              });
-            } else {
-              connection.end();
-            }
-            break;
-          case 2:
-            if (response.indexOf("250") > -1 && !ended) {
-              const cmd = `RCPT TO:<${email}>\r\n`;
-              console.log(`[ping-email]: 📨 SMTP Command: ${cmd}`);
+              // close the connection cleanly.
+              if (!ended) {
+                const cmd = "QUIT\r\n";
 
-              connection.write(cmd, () => {
-                stage++;
-                response = "";
-              });
-            } else {
-              connection.end();
-            }
-            break;
-          case 3:
-            if (
-              response.indexOf("250") > -1 ||
-              ("405" && response.indexOf("405") > -1)
-            ) {
-              success = true;
-            }
-            stage++;
-            response = "";
+                this.log.info(`SMTP Command: ${cmd}`);
 
-            // close the connection cleanly.
-            if (!ended) {
-              const cmd = "QUIT\r\n";
-              console.log(`[ping-email]: 📨 SMTP Command: ${cmd}`);
-              connection.write(cmd);
-            }
-            break;
-          case 4:
-            connection.end();
+                connection.write(cmd);
+              }
+              break;
+            case 4:
+              connection.end();
+          }
         }
-      }
-    });
-
-    connection.once("connect", () => {
-      console.log("[ping-email]: 🔗 Connection to SMTP server established");
-    });
-
-    connection.once("error", (err) => {
-      console.log("[ping-email]: ❌ Error connecting to SMTP server");
-      console.log("[ping-email]: ❌ Error: ", err);
-
-      callback({
-        email,
-        valid: false,
-        success: false,
-        message: CallbackDataMessages.SMTP_CONNECTION_ERROR,
       });
-    });
 
-    connection.once("end", () => {
-      console.log("[ping-email]: 🏁 Connection to SMTP server ended");
+      connection.once("connect", () => {
+        this.log.info(`Connection to SMTP server established`);
+      });
 
-      if (success) {
-        callback({
-          email,
-          valid: true,
-          success: true,
-          message: CallbackDataMessages.VALID,
-        });
-      } else {
-        callback({
-          email,
+      connection.once("error", (err) => {
+        this.log.error(`Error connecting to SMTP server: ${err}`);
+
+        resolve({
           valid: false,
           success: false,
-          message: CallbackDataMessages.INVALID,
+          message: PingResponseMessages.SMTP_CONNECTION_ERROR,
         });
-      }
+      });
+
+      connection.once("end", () => {
+        this.log.info(`Connection to SMTP server ended`);
+
+        if (success) {
+          resolve({
+            valid: true,
+            success: true,
+            message: PingResponseMessages.VALID,
+          });
+        } else {
+          resolve({
+            valid: false,
+            success: false,
+            message: PingResponseMessages.INVALID,
+          });
+        }
+      });
     });
   }
 }

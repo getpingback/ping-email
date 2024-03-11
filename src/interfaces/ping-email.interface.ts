@@ -1,4 +1,4 @@
-export enum CallbackDataMessages {
+export enum PingResponseMessages {
   VALID = "Valid email",
   INVALID = "Invalid email",
   VALID_DOMAIN = "Valid domain",
@@ -11,24 +11,16 @@ export enum CallbackDataMessages {
   SMTP_CONNECTION_ERROR = "SMTP connection error",
 }
 
-export interface PingEmailConstructorOptions {
-  port?: number;
-  fqdn?: string;
-  sender?: string;
-}
-
 export interface PingEmailOptions {
   port: number;
   fqdn: string;
   sender: string;
+  debug?: boolean;
 }
 
-export interface PingEmailCallbackData {
+export interface PingResponse {
   email: string;
   valid: boolean;
   success: boolean;
-  message: CallbackDataMessages;
+  message: PingResponseMessages;
 }
-
-export type PingEmailParam = string;
-export type PingCallbackParam = (data: PingEmailCallbackData) => void;
