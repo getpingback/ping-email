@@ -11,6 +11,7 @@ export enum PingResponseMessages {
   DOMAIN_VERIFICATION_FAILED = "Domain verification failed",
   UNABLE_TO_VERIFY = "Unable to verify email",
   CONNECTION_TIMEOUT = "Connection timeout",
+  ATTEMPTS_EXCEEDED = "Exceeded attempts",
 }
 
 export interface PingEmailConstructorOptions {
@@ -19,6 +20,7 @@ export interface PingEmailConstructorOptions {
   sender?: string;
   debug?: boolean;
   timeout?: number;
+  attempts?: number;
 }
 
 export interface PingEmailOptions {
@@ -27,12 +29,12 @@ export interface PingEmailOptions {
   sender: string;
   debug: boolean;
   timeout: number;
+  attempts: number;
 }
 
 export interface PingResponse {
   email: string;
   valid: boolean;
   success: boolean;
-  tryAgain: boolean;
   message: PingResponseMessages;
 }

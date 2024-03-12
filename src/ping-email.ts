@@ -21,6 +21,7 @@ class PingEmail {
       timeout: options?.timeout || 10000,
       sender: options?.sender || "name@example.org",
       fqdn: options?.fqdn || "mail.example.org",
+      attempts: options?.attempts || 3,
     };
 
     this.log = new Log(this.options.debug);
@@ -35,7 +36,6 @@ class PingEmail {
         email,
         valid: false,
         success: true,
-        tryAgain: false,
         message: PingResponseMessages.EMAIL_REQUIRED,
       };
     }
@@ -47,7 +47,6 @@ class PingEmail {
         email,
         valid: false,
         success: true,
-        tryAgain: false,
         message: PingResponseMessages.INVALID_SYNTAX,
       };
     }
@@ -59,7 +58,6 @@ class PingEmail {
         email,
         valid: false,
         success: true,
-        tryAgain: false,
         message: PingResponseMessages.DISPOSABLE_EMAIL,
       };
     }
@@ -76,24 +74,43 @@ class PingEmail {
         email,
         valid: false,
         success: true,
-        tryAgain: false,
         message: domainMessage,
       };
     }
 
     this.log.info(`Verifying SMTP of email: ${email}`);
     if (isDomainValid && foundMx && smtp) {
-      const { valid, success, message, tryAgain } =
-        await this.emails.verifySMTP(email, smtp);
+      for (let i = 0; i < this.options.attempts; i++) {
+        this.log.info(`Attempt ${i + 1} of ${this.options.attempts}`);
 
-      this.log.info(`SMTP verification of email: ${email} - ${message}`);
+        const { valid, success, message, tryAgain } =
+          await this.emails.verifySMTP(email, smtp);
 
+        if (success) {
+          return {
+            email,
+            valid,
+            success,
+            message,
+          };
+        }
+
+        if (!tryAgain) {
+          return {
+            email,
+            valid,
+            success,
+            message,
+          };
+        }
+      }
+
+      this.log.info(`Attempts exceeded for email: ${email}`);
       return {
         email,
-        valid,
-        success,
-        message,
-        tryAgain,
+        valid: false,
+        success: false,
+        message: PingResponseMessages.ATTEMPTS_EXCEEDED,
       };
     }
 
@@ -101,7 +118,6 @@ class PingEmail {
       email,
       valid: false,
       success: false,
-      tryAgain: false,
       message: PingResponseMessages.UNABLE_TO_VERIFY,
     };
   }

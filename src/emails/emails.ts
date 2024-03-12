@@ -163,7 +163,6 @@ class Emails {
               stage++;
               response = "";
 
-              // close the connection cleanly.
               if (!ended) {
                 const cmd = "QUIT\r\n";
 

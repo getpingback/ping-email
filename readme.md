@@ -20,6 +20,7 @@ const pingEmail = new PingEmail({
   fqdn: "mail.example.org", // Fully Qualified Domain Name of your SMTP server
   sender: "name@example.org", // Email address to use as the sender in SMTP checks,
   timeout: 10000, // Time in milliseconds to wait for a response from the SMTP server
+  attempts: 3, // Number of attempts to verify the email address
 });
 ```
 
@@ -46,7 +47,6 @@ The ping method returns an object with the following properties:
 - `email`: The email address being verified.
 - `valid`: A boolean indicating the overall validity of the email based on syntax, domain, and SMTP checks.
 - `success`: A boolean indicating if the verification process executed without encountering system-level errors (e.g., network issues).
-- `tryAgain`: A boolean indicating if the verification process should be retried. This is useful when the verification process fails due to temporary issues, such as network connectivity problems.
 - `message`: A string providing detailed feedback about the verification outcome. This message can be one of the following, as defined in `PingResponseMessages`:
   - `"Valid email"`: The email address is valid.
   - `"Invalid email"`: The email address is invalid.
@@ -60,6 +60,7 @@ The ping method returns an object with the following properties:
   - `"Domain verification failed"`: The domain verification process failed.
   - `"Unable to verify email"`: The email verification process failed for an unknown reason.
   - `"Connection timeout"`: The connection to the SMTP server timed out.
+  - `"Exceeded attempts"`: The maximum number of attempts to verify the email address was exceeded.
 
 These messages provide clear insights into the verification process, helping you understand the specific reason for an email's validation outcome.
 
@@ -71,11 +72,12 @@ When integrating PingEmail into your applications, pay special attention to the 
 
 You can customize **PingEmail** by providing different options when you instantiate it. The available options are:
 
-- `port`: The port number to connect to the SMTP server (default: 25).
-- `fqdn`: The Fully Qualified Domain Name of your SMTP server.
-- `sender`: The email address used as the sender in SMTP checks.
-- `timeout`: The time in milliseconds to wait for a response from the SMTP server (default: 10000).
-- `debug`: A boolean indicating whether to enable debug mode, which logs detailed information about the verification process (default: false).
+- `port`: The port number to connect to the SMTP server `(default: 25)`.
+- `attempts`: The number of attempts to verify the email address `(default: 3)`.
+- `fqdn`: The Fully Qualified Domain Name of your SMTP server `(default: "mail.example.org")`.
+- `sender`: The email address used as the sender in SMTP checks `(default: "name@example.org")`.
+- `timeout`: The time in milliseconds to wait for a response from the SMTP server `(default: 10000)`.
+- `debug`: A boolean indicating whether to enable debug mode, which logs detailed information about the verification process `(default: false)`.
 
 This allows you to tailor the library to your specific requirements, ensuring compatibility with your email verification workflow.
 
@@ -90,6 +92,8 @@ const pingEmail = new PingEmail({
   port: 587,
   fqdn: "smtp.example.org",
   sender: "verify@example.org",
+  timeout: 15000,
+  attempts: 5,
 });
 
 const { email, valid, success, message } = await pingEmail.ping(
