@@ -25,6 +25,7 @@ describe("Log", () => {
       logger.info(message);
 
       expect(consoleSpy).toHaveBeenCalledWith(
+        "\x1b[34m",
         `[ping-email - INFO]:  ${message}`
       );
     });
@@ -34,6 +35,7 @@ describe("Log", () => {
       logger.error(message);
 
       expect(consoleSpy).toHaveBeenCalledWith(
+        "\x1b[31m",
         `[ping-email - ERROR]: ${message}`
       );
     });

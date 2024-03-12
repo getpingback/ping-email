@@ -8,12 +8,15 @@ const mockOptions = {
   port: 25,
   fqdn: "mail.example.org",
   sender: "name@example.org",
+  timeout: 10000,
+  debug: false,
+  attempts: 3,
 } as PingEmailOptions;
 
 const emails = new Emails(mockOptions);
 
 describe("Emails", () => {
-  const validEmail = "p@gmail.com";
+  const validEmail = "pmladeira36@gmail.com";
   const invalidEmail = "p@jzbcsajkbakas.com";
   const invalidSyntaxEmail = "p@gmail";
   const disposableEmail = "p@tempemail.com";
@@ -63,6 +66,36 @@ describe("Emails", () => {
         valid: false,
         foundMx: false,
         message: PingResponseMessages.DOMAIN_VERIFICATION_FAILED,
+      };
+
+      expect(result).toEqual(expected);
+    });
+  });
+
+  describe("verifySMTP", () => {
+    const smtp = "gmail-smtp-in.l.google.com";
+
+    it("should return valid response if SMTP is valid", async () => {
+      const result = await emails.verifySMTP(validEmail, smtp);
+
+      const expected = {
+        valid: true,
+        tryAgain: false,
+        success: true,
+        message: PingResponseMessages.VALID,
+      };
+
+      expect(result).toEqual(expected);
+    });
+
+    it("should return invalid response if SMTP is invalid", async () => {
+      const result = await emails.verifySMTP(disposableEmail, smtp);
+
+      const expected = {
+        valid: false,
+        tryAgain: false,
+        success: true,
+        message: PingResponseMessages.INVALID,
       };
 
       expect(result).toEqual(expected);

@@ -6,11 +6,13 @@ class Log {
   }
 
   info(message: string): void {
-    if (this.debug) console.log(`[ping-email - INFO]:  ${message}`);
+    if (this.debug)
+      console.log("\x1b[34m", `[ping-email - INFO]:  ${message}`);
   }
 
   error(message: string): void {
-    if (this.debug) console.log(`[ping-email - ERROR]: ${message}`);
+    if (this.debug)
+      console.log("\x1b[31m", `[ping-email - ERROR]: ${message}`);
   }
 }
 
