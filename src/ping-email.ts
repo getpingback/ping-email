@@ -2,12 +2,7 @@
 
 import { Log } from "./log/log";
 import { Emails } from "./emails/emails";
-import {
-  PingResponse,
-  PingEmailOptions,
-  PingResponseMessages,
-  PingEmailConstructorOptions,
-} from "./interfaces/ping-email.interface";
+import { PingResponse, PingEmailOptions, PingResponseMessages, PingEmailConstructorOptions } from "./interfaces/ping-email.interface";
 
 class PingEmail {
   private readonly log: Log;
@@ -22,6 +17,7 @@ class PingEmail {
       sender: options?.sender || "name@example.org",
       fqdn: options?.fqdn || "mail.example.org",
       attempts: options?.attempts || 3,
+      ignoreSMTPVerify: options?.ignoreSMTPVerify || false,
     };
 
     this.log = new Log(this.options.debug);
@@ -63,12 +59,7 @@ class PingEmail {
     }
 
     this.log.info(`Verifying domain of email: ${email}`);
-    const {
-      smtp,
-      foundMx,
-      valid: isDomainValid,
-      message: domainMessage,
-    } = await this.emails.verifyDomain(email);
+    const { smtp, foundMx, valid: isDomainValid, message: domainMessage } = await this.emails.verifyDomain(email);
     if (!isDomainValid) {
       return {
         email,
@@ -78,13 +69,22 @@ class PingEmail {
       };
     }
 
+    if (this.options.ignoreSMTPVerify && foundMx && smtp) {
+      this.log.info(`Ignoring SMTP verification of email: ${email}`);
+      return {
+        email,
+        valid: true,
+        success: true,
+        message: PingResponseMessages.VALID_IGNORED_SMTP,
+      };
+    }
+
     this.log.info(`Verifying SMTP of email: ${email}`);
     if (isDomainValid && foundMx && smtp) {
       for (let i = 0; i < this.options.attempts; i++) {
         this.log.info(`Attempt ${i + 1} of ${this.options.attempts}`);
 
-        const { valid, success, message, tryAgain } =
-          await this.emails.verifySMTP(email, smtp);
+        const { valid, success, message, tryAgain } = await this.emails.verifySMTP(email, smtp);
 
         if (success) {
           return {

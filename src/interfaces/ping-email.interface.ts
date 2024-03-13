@@ -1,5 +1,6 @@
 export enum PingResponseMessages {
   VALID = "Valid email",
+  VALID_IGNORED_SMTP = "Valid email (ignored SMTP verification)",
   INVALID = "Invalid email",
   VALID_DOMAIN = "Valid domain",
   INVALID_DOMAIN = "Invalid domain",
@@ -21,6 +22,7 @@ export interface PingEmailConstructorOptions {
   debug?: boolean;
   timeout?: number;
   attempts?: number;
+  ignoreSMTPVerify?: boolean;
 }
 
 export interface PingEmailOptions {
@@ -30,6 +32,7 @@ export interface PingEmailOptions {
   debug: boolean;
   timeout: number;
   attempts: number;
+  ignoreSMTPVerify: boolean;
 }
 
 export interface PingResponse {

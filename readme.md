@@ -61,6 +61,7 @@ The ping method returns an object with the following properties:
   - `"Unable to verify email"`: The email verification process failed for an unknown reason.
   - `"Connection timeout"`: The connection to the SMTP server timed out.
   - `"Exceeded attempts"`: The maximum number of attempts to verify the email address was exceeded.
+  - `"Valid email (ignored SMTP verification)"`: The email address is valid, but the SMTP verification process was skipped.
 
 These messages provide clear insights into the verification process, helping you understand the specific reason for an email's validation outcome.
 
@@ -77,6 +78,7 @@ You can customize **PingEmail** by providing different options when you instanti
 - `fqdn`: The Fully Qualified Domain Name of your SMTP server `(default: "mail.example.org")`.
 - `sender`: The email address used as the sender in SMTP checks `(default: "name@example.org")`.
 - `timeout`: The time in milliseconds to wait for a response from the SMTP server `(default: 10000)`.
+- `ignoreSMTPVerify`: A boolean indicating whether to skip the SMTP verification process `(default: false)`.
 - `debug`: A boolean indicating whether to enable debug mode, which logs detailed information about the verification process `(default: false)`.
 
 This allows you to tailor the library to your specific requirements, ensuring compatibility with your email verification workflow.
@@ -96,9 +98,7 @@ const pingEmail = new PingEmail({
   attempts: 5,
 });
 
-const { email, valid, success, message } = await pingEmail.ping(
-  "user@example.com"
-);
+const { email, valid, success, message } = await pingEmail.ping("user@example.com");
 ```
 
 ## Understanding Email Verification

@@ -61,9 +61,7 @@ describe("PingEmail", () => {
 
       expect(response.valid).toBe(false);
       expect(response.success).toBe(true);
-      expect(response.message).toBe(
-        PingResponseMessages.DOMAIN_VERIFICATION_FAILED
-      );
+      expect(response.message).toBe(PingResponseMessages.DOMAIN_VERIFICATION_FAILED);
     });
 
     it("should return a success when email is valid", async () => {
@@ -82,6 +80,15 @@ describe("PingEmail", () => {
       expect(response.valid).toBe(false);
       expect(response.success).toBe(true);
       expect(response.message).toBe(PingResponseMessages.INVALID);
+    });
+
+    it("should ignore SMTP verification when ignoreSMTPVerify is true", async () => {
+      const pingEmail = new PingEmail({ ignoreSMTPVerify: true });
+      const response = await pingEmail.ping(validEmail);
+
+      expect(response.valid).toBe(true);
+      expect(response.success).toBe(true);
+      expect(response.message).toBe(PingResponseMessages.VALID_IGNORED_SMTP);
     });
   });
 });
