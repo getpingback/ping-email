@@ -126,6 +126,38 @@ Validating email addresses is crucial for several reasons:
 
 Understanding these concepts is crucial for effectively utilizing `ping-email` and comprehending the mechanics of email verification and delivery.
 
+## Risk of IP Blocking
+
+When using `ping-email` for SMTP email verification, there is a risk of IP blocking. This risk arises because the method employed by the library to verify email addresses can be perceived as suspicious by email servers, especially when requests are frequent or in large volumes. Email servers may interpret these verification attempts as spam or malicious activity, leading to the blocking of your IP address.
+
+### Mitigating the Risk
+
+To mitigate this risk, it is crucial to use the library responsibly and understand the implications of SMTP email verification. If you are conducting bulk email verifications or are concerned about the potential for IP blocking, consider the following guidelines:
+
+- **Rate Limiting**: Limit the number of requests you make to the SMTP server within a given time frame.
+- **Use a Proxy**: Consider using a proxy server to distribute requests across multiple IP addresses, reducing the risk of being blocked.
+- **Use a Dedicated IP**: If you have a high volume of email verification requests, consider using a dedicated IP address to avoid being blocked.
+
+### `ignoreSMTPVerify` Option
+
+The `ignoreSMTPVerify` option in `ping-email` allows you to skip the SMTP verification process, which can help reduce the risk of IP blocking. However, it is important to note that by doing so, you may miss out on valuable insights into the validity of email addresses and the integrity of the recipient's domain.
+
+Here's an example of how to use the `ignoreSMTPVerify` option:
+
+```js
+const pingEmail = new PingEmail({
+  ignoreSMTPVerify: true,
+});
+```
+
+### Best Practices
+
+- **Gradual Processing**: Gradually process large lists of email addresses to avoid sudden spikes in traffic that could lead to your IP being flagged.
+- **Monitoring and Feedback**: Regularly monitor the feedback from the servers you are verifying against. If you notice an increase in failures or blocks, adjust your verification strategy accordingly.
+- **Compliance and Ethics**: Always use email verification tools ethically and in compliance with internet standards and regulations to maintain a good sending reputation.
+
+By following these guidelines and using `ping-email` judiciously, you can effectively verify email addresses while minimizing the risk of IP blocking and maintaining the integrity of your email verification processes.
+
 ---
 
 ## Authors
