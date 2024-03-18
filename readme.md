@@ -28,7 +28,7 @@ const pingEmail = new PingEmail({
 
 ### Verifying an Email Address
 
-To verify an email address using PingEmail, call the ping method with the target email address:
+To verify an email address using `ping-email`, call the ping method with the target email address:
 
 ```js
 const { email, valid, message } = await pingEmail.ping("test@example.com");
@@ -67,11 +67,11 @@ These messages provide clear insights into the verification process, helping you
 
 ### Error Handling
 
-When integrating PingEmail into your applications, pay special attention to the success and message properties in the ping method response. They are key to identifying and handling different scenarios, such as invalid email syntax, domain issues, or SMTP server connectivity problems. Logging these details can be helpful for debugging purposes or improving user feedback in your application interface.
+When integrating `ping-email` into your applications, pay special attention to the success and message properties in the ping method response. They are key to identifying and handling different scenarios, such as invalid email syntax, domain issues, or SMTP server connectivity problems. Logging these details can be helpful for debugging purposes or improving user feedback in your application interface.
 
 ### Options
 
-You can customize **PingEmail** by providing different options when you instantiate it. The available options are:
+You can customize `ping-email` by providing different options when you instantiate it. The available options are:
 
 - `port`: The port number to connect to the SMTP server `(default: 25)`.
 - `attempts`: The number of attempts to verify the email address `(default: 3)`.
