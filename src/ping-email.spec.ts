@@ -91,4 +91,72 @@ describe("PingEmail", () => {
       expect(response.message).toBe(PingResponseMessages.VALID_IGNORED_SMTP);
     });
   });
+
+  describe("pingBatch", () => {
+    const validEmail1 = "pmladeira36@gmail.com";
+    const validEmail2 = "pmladeira36@gmail.com";
+    const invalidEmail = "invalid@example.com";
+    const disposableEmail = "p@tempemail.com";
+    const invalidSyntaxEmail = "invalidsyntax@.com";
+
+    it("should verify a batch of valid emails", async () => {
+      const pingEmail = new PingEmail();
+      const emails = [validEmail1, validEmail2];
+      const results = await pingEmail.pingBatch(emails);
+
+      expect(results).toHaveLength(2);
+      results.forEach((result) => {
+        expect(result.valid).toBe(true);
+        expect(result.success).toBe(true);
+        expect(result.message).toBe(PingResponseMessages.VALID);
+      });
+    });
+
+    it("should handle a batch of mixed emails", async () => {
+      const pingEmail = new PingEmail();
+      const emails = [validEmail1, invalidEmail, disposableEmail, invalidSyntaxEmail];
+      const results = await pingEmail.pingBatch(emails);
+
+      expect(results).toHaveLength(4);
+      expect(results[0].valid).toBe(true);
+      expect(results[1].valid).toBe(false);
+      expect(results[2].valid).toBe(false);
+      expect(results[3].valid).toBe(false);
+    });
+
+    it("should respect the maximum batch size", async () => {
+      const pingEmail = new PingEmail();
+      const emails = Array(49).fill(validEmail1);
+      const results = await pingEmail.pingBatch(emails);
+
+      expect(results).toHaveLength(49);
+    });
+
+    it("should handle an empty batch", async () => {
+      const pingEmail = new PingEmail();
+      const results = await pingEmail.pingBatch([]);
+
+      expect(results).toHaveLength(0);
+    });
+
+    it("should handle errors during verification", async () => {
+      const pingEmail = new PingEmail();
+      jest.spyOn(pingEmail, "ping").mockRejectedValueOnce(new Error("Test error"));
+
+      const emails = [validEmail1, validEmail2];
+      await expect(pingEmail.pingBatch(emails)).rejects.toThrow("Test error");
+    });
+
+    it("should ignore SMTP verification when configured", async () => {
+      const pingEmail = new PingEmail({ ignoreSMTPVerify: true });
+      const emails = [validEmail1, validEmail2];
+      const results = await pingEmail.pingBatch(emails);
+
+      expect(results).toHaveLength(2);
+      results.forEach((result) => {
+        expect(result.valid).toBe(true);
+        expect(result.message).toBe(PingResponseMessages.VALID_IGNORED_SMTP);
+      });
+    });
+  });
 });

@@ -121,6 +121,26 @@ class PingEmail {
       message: PingResponseMessages.UNABLE_TO_VERIFY,
     };
   }
+
+  async pingBatch(emails: string[], batchSize: number = 50): Promise<PingResponse[]> {
+    this.log.info(`Starting batch verification of ${emails.length} emails`);
+
+    if (emails.length > batchSize) {
+      this.log.error(`The number of emails exceeds the maximum batch size. Limiting to ${batchSize} emails.`);
+      emails = emails.slice(0, batchSize);
+    }
+
+    const pingPromises = emails.map(email => this.ping(email));
+
+    try {
+      const results = await Promise.all(pingPromises);
+      this.log.info(`Batch verification completed for ${results.length} emails`);
+      return results;
+    } catch (error) {
+      this.log.error(`Error during batch verification: ${error}`);
+      throw error;
+    }
+  }
 }
 
 export { PingEmail };
