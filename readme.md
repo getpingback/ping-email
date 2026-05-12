@@ -101,6 +101,21 @@ const pingEmail = new PingEmail({
 const { email, valid, success, message } = await pingEmail.ping("user@example.com");
 ```
 
+### Verifying emails from a CSV (CLI script)
+
+When working from a clone of this repository, you can verify addresses in bulk using the script in [`scripts/filter-valid-csv-emails.ts`](./scripts/filter-valid-csv-emails.ts). It reads a CSV file that contains an `email` column (or uses the first column if that header is missing), invokes `PingEmail` for each row, and writes a new CSV containing only rows where verification returned `valid: true`.
+
+```bash
+npm install
+npm run filter-csv
+```
+
+By default, the script looks for `./list.csv` and writes `./list-valid-emails.csv`. **`list.csv` is listed in [.gitignore](./.gitignore)** so typical contact lists stay out of commits; use `--input` and `--output` to pick other paths. See pacing, concurrency, and `--ignore-smtp` options:
+
+```bash
+npm run filter-csv -- --help
+```
+
 ## Understanding Email Verification
 
 ### What is SMTP?

@@ -7,3 +7,6 @@ dist
 # Environments
 .env
 .env.*
+
+# Local bulk lists
+list.csv

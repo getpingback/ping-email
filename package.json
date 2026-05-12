@@ -24,7 +24,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "prepublishOnly": "npm run build",
-    "build": "tsup src/index.ts --format esm,cjs --dts"
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "filter-csv": "ts-node --project tsconfig.json scripts/filter-valid-csv-emails.ts"
   },
   "repository": {
     "type": "git",
